@@ -5,6 +5,8 @@ import signUp from "../views/SignUp";
 import projects from "../views/Projects";
 import tickets from "../views/Tickets";
 import invite from "../views/Invite";
+import join from "../views/Join";
+import userProfile from "../views/UserProfile"
 
 Vue.use(VueRouter)
 
@@ -33,6 +35,16 @@ Vue.use(VueRouter)
       path: '/invite/:projectId',
       name: 'invite',
       component: invite
+    },
+    {
+      path: '/join/:token',
+      name: 'join',
+      component: join
+    },
+    {
+      path: '/user/profile',
+      name: 'userProfile',
+      component: userProfile
     }
 ]
 

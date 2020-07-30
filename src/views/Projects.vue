@@ -5,7 +5,7 @@
             <div>
                 <b-form @submit="onCreate">
                     <b-form-group label="name">
-                        <b-form-input v-model="form.projectName" required/>
+                        <b-form-input v-model="form.project_name" required/>
                     </b-form-group>
                     <b-form-group label="description">
                         <b-form-input v-model="form.description" required/>
@@ -24,12 +24,12 @@
 
 <script>
     export default {
-        name: 'project',
+        name: 'projects',
         data() {
             return {
                 projects: this.getProjects(),
                 form: {
-                    projectName: '',
+                    project_name: '',
                     description: ''
                 }
             }

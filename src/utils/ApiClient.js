@@ -8,18 +8,12 @@ export default {
                 .then(response => {
                     return response.data
                 })
-                .catch(error => {
-                    alert(error.response.data.message)
-                })
         },
         callPost(url, requestBody) {
             let instance = createInstance();
             return instance.post(url, requestBody)
                 .then(response => {
                     return response.data
-                })
-                .catch(error => {
-                    alert(error.response.data.message)
                 })
         },
         callPut(url, requestBody) {
@@ -28,9 +22,6 @@ export default {
                 .then(response => {
                     return response.data
                 })
-                .catch(error => {
-                    alert(error.response.data.message)
-                })
         },
         callDelete(url) {
             let instance = createInstance();
@@ -38,18 +29,15 @@ export default {
                 .then(response => {
                     return response.data
                 })
-                .catch(error => {
-                    alert(error.response.data.message)
-                })
         }
     }
 }
 
 function createInstance() {
     return axios.create({
-        baseURL: 'http://localhost:8080',
+        baseURL: 'http://localhost:1313',
         responseType: "json",
-        headers: {'userToken': getUserToken()}
+        headers: {'user_token': getUserToken()}
     });
 }
 

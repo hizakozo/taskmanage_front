@@ -1,9 +1,9 @@
 <template>
     <b-card class="mt-5 w-25 ml-auto mr-auto">
         <b-form-group label="user name">
-            <b-form-input v-model="body.mailAddress" required placeholder="mail address"/>
+            <b-form-input v-model="body.mail_address" required placeholder="mail address"/>
         </b-form-group>
-        <b-button @click="onSubmit" class="float-right" variant="outline-success">Create</b-button>
+        <b-button @click="onSubmit" class="float-right" variant="outline-success">招待する</b-button>
     </b-card>
 </template>
 
@@ -13,8 +13,8 @@
         data() {
             return {
                 body: {
-                    mailAddress: "",
-                    projectId: this.$route.params.projectId
+                    project_id: this.$route.params.projectId,
+                    mail_address: ""
                 }
             }
         },

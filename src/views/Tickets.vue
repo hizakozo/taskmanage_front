@@ -1,122 +1,89 @@
 <template>
-    <b-container>
-        <b-row>
-            <b-col cols="2">
-            </b-col>
-            <b-col cols="10">
-                <div v-for="status in statuses" :key="status.id">
-                    <b-card class="float-left mr-3 mt-5 w-25" :header="status.name">
-                        <draggable :options="{group: 'tickets'}"
-                                   @add="draggableEnd($event, status.id)"
-                                   :data-status="status.id">
-                            <b-card v-for="ticket in status.tickets"
-                                    :value="ticket.id" class="m-2"
-                                    :title=ticket.title style="cursor: move"
-                                    @click="showDetail(ticket.id)"
-                            ></b-card>
-                        </draggable>
-                    </b-card>
-                </div>
-            </b-col>
-        </b-row>
-        <b-button @click="createModal = true">Create Ticket</b-button>
-        <b-modal hide-footer v-model="createModal" title="Create Ticket">
-            <div>
-                <b-form>
-                    <b-form-group label="title">
-                        <b-form-input v-model="form.title" required/>
-                    </b-form-group>
-                    <b-form-group label="explanation">
-                        <b-form-input v-model="form.explanation" required/>
-                    </b-form-group>
-                    <b-form-group label="worker">
-                        <b-form-select v-model="form.worker" value-field="id" text-field="name"
-                                       :options="users"></b-form-select>
-                    </b-form-group>
-                    <b-button class="float-right" @click="onCreate" variant="primary">Create</b-button>
-                </b-form>
-            </div>
-        </b-modal>
-
-        <b-modal hide-footer v-model="detailModal">
-            <div class="mb-4">
-                <label>title:</label>
-                <div v-if="!isEdit.title" @click="isEdit.title = true">{{ticketDetail.title}}</div>
-                <b-form-input v-if="isEdit.title" type="text" v-model="updateForm.title" @blur="update" autofocus/>
-            </div>
-            <div class="mb-4">
-                <label>explanation:</label>
-                <div v-if="!isEdit.explanation" @click="isEdit.explanation = true">{{ticketDetail.explanation}}</div>
-                <b-form-input v-if="isEdit.explanation" type="text" v-model="updateForm.explanation" @blur="update"
-                              autofocus/>
-            </div>
-            <div class="mb-4">
-                <label>worker:</label>
-                <div v-if="!isEdit.worker" @click="isEdit.worker = true">{{ticketDetail.worker.name}}</div>
-                <b-form-select v-if="isEdit.worker" value-field="id" text-field="name" :options="users"
-                               v-model="updateForm.worker" @input="update"/>
-            </div>
-            <div class="mb-4">
-                <label>reporter:</label>
-                <div v-if="!isEdit.reporter" @click="isEdit.reporter = true">{{ticketDetail.reporter.name}}</div>
-                <b-form-select v-if="isEdit.reporter" value-field="id" text-field="name" :options="users"
-                               v-model="updateForm.reporter" @input="update"/>
-            </div>
-        </b-modal>
-        <router-link :to="{ name: 'invite', params: { projectId:  projectId}}">
-            <b-button class="float-right" variant="success">invite</b-button>
-        </router-link>
-    </b-container>
+    <div>
+        <Header></Header>
+        <b-container>
+            <b-row>
+                <b-col cols="2">
+                </b-col>
+                <b-col cols="10">
+                    <div v-for="status in statuses" :key="status.id">
+                        <b-card class="float-left mr-3 mt-5 w-25" :header="status.name">
+                            <b-button size="sm" class="mb-2" @click="showCreateModal(status.id)"
+                                      variant="light">
+                                <b-icon icon="plus"></b-icon>
+                                追加
+                            </b-button>
+                            <draggable :options="{group: 'tickets'}"
+                                       @add="draggableEnd($event, status.id)"
+                                       :data-status="status.id">
+                                <div v-for="ticket in status.tickets"
+                                     :value=ticket.id class="m-2"
+                                     style="cursor: move; max-width: 20rem;"
+                                     @click="showDetail(ticket.id)"
+                                >
+                                    <b-list-group-item class="d-flex align-items-center">
+                                        <b-avatar variant="white" class="float-right mr-3" :src="ticket.avatar"/>
+                                        <span v-text="ticket.title"/>
+                                    </b-list-group-item>
+                                </div>
+                            </draggable>
+                        </b-card>
+                    </div>
+                </b-col>
+            </b-row>
+            <b-modal hide-footer v-model="createModal" title="Create Ticket">
+                <TicketCreate
+                        :users="users"
+                        :project-id="this.projectId"
+                        :status-id="this.addTaskStatusId"
+                        @ticket-create="ticketCreate"
+                />
+            </b-modal>
+            <b-modal hide-footer v-model="detailModal" hide-header size="lg">
+                <TicketDetail
+                        :ticket-detail=ticketDetail
+                        :comments="comments"
+                        :users="users"
+                        :statuses="statusList"
+                        @ticket-update="ticketUpdate"
+                        @ticket-delete="ticketDelete"
+                        @comment-post="commentPost"
+                />
+            </b-modal>
+            <router-link tag="b-button" :to="{name: 'invite', params: { projectId: project.id }}">
+                招待
+            </router-link>
+        </b-container>
+    </div>
 </template>
 
 <script>
     import draggable from 'vuedraggable'
+    import TicketDetail from '../components/TIcketDetail'
+    import TicketCreate from "../components/TicketCreate"
+    import Header from "../components/Header";
 
     export default {
         name: 'tickets',
-        components: {draggable},
+        components: {draggable, TicketDetail, TicketCreate, Header},
         data() {
             return {
                 statuses: this.getTickets(),
                 users: this.getUsers(),
-                projectId: null,
                 project: {},
-                form: {
-                    projectId: this.projectId,
-                    title: '',
-                    explanation: '',
-                    worker: null
-                },
+                projectId: '',
                 createModal: false,
                 detailModal: false,
-                ticketDetail: {
-                    reporter: {
-                        name: ''
-                    },
-                    worker: {
-                        name: ''
-                    }
-                },
-                isEdit: {
-                    title: false,
-                    explanation: false,
-                    reporter: false,
-                    worker: false
-                },
-                updateForm: {
-                    ticketId: null,
-                    projectId: null,
-                    title: '',
-                    explanation: '',
-                    reporter: null,
-                    worker: null
-                },
-                statusList: []
+                ticketDetail: {},
+                statusList: this.getStatuses(),
+                comments: [],
+                addTaskStatusId: null,
+                upFile: null
             }
         },
         methods: {
             getTickets() {
-                this.projectId = this.$route.params.projectId;
+                this.projectId = parseInt(this.$route.params.projectId);
                 this.callGet(`/tickets/${this.projectId}`)
                     .then(data => {
                         if (data) {
@@ -124,20 +91,27 @@
                             this.project = data.project;
                             this.projectId = data.project.id
                         }
-                    })
+                    }).catch(error => {
+                    if (error) {
+                    }
+                })
             },
             draggableEnd(event, statusId) {
                 const element = event.item
                 const ticketId = element.getAttribute("value");
                 const body = {
-                    projectId: this.project.id,
-                    ticketId: ticketId,
-                    statusId: statusId
+                    project_id: this.project.id,
+                    ticket_id: parseInt(ticketId),
+                    status_id: statusId
                 };
                 this.callPut(`/tickets/status`, body)
                     .then(data => {
 
                     })
+            },
+            showCreateModal(statusId) {
+                this.addTaskStatusId = statusId
+                this.createModal = true
             },
             getUsers() {
                 this.callGet(`/user/${this.projectId}`)
@@ -147,8 +121,8 @@
                         }
                     })
             },
-            async onCreate() {
-                await this.callPost(`/tickets`, this.form)
+            async ticketCreate(createForm) {
+                await this.callPost(`/tickets`, createForm)
                     .then(data => {
                         this.createModal = false;
                         this.getTickets();
@@ -156,6 +130,7 @@
             },
             async showDetail(ticketId) {
                 await this.getTicketDetail(ticketId)
+                await this.getComments(ticketId)
                 this.detailModal = true;
             },
             async getTicketDetail(ticketId) {
@@ -163,28 +138,78 @@
                     .then(data => {
                         if (data) {
                             this.ticketDetail = data
-
-                            this.updateForm = {
-                                ticketId: data.ticketId,
-                                projectId: this.project.id,
-                                title: data.title,
-                                explanation: data.explanation,
-                                worker: data.worker.id,
-                                reporter: data.reporter.id
-                            };
                         }
                     })
             },
-            async update() {
-                await this.callPut(`/tickets`, this.updateForm)
+            async getComments(ticketId) {
+                await this.callGet(`/comments/${ticketId}`)
                     .then(data => {
-                        this.getTicketDetail(data.ticketId);
-                        this.getTickets()
+                        this.comments = data.comments
                     })
-                this.isEdit.title = false;
-                this.isEdit.explanation = false;
-                this.isEdit.worker = false;
-                this.isEdit.reporter = false;
+            },
+            async ticketUpdate(updateForm) {
+                await this.callPut(`/tickets`, updateForm)
+                    .then(async data => {
+                        await this.getTicketDetail(data.id)
+                        await this.fetchData(this.ticketDetail)
+                    })
+            },
+            async ticketDelete(ticketId) {
+                let id = parseInt(ticketId)
+                await this.callDelete(`/tickets/delete/${id}`)
+                    .then(data => {
+                        console.log(22)
+                        this.getTickets()
+                        this.detailModal = false
+                    }).catch(err => {
+                        if (err) {
+                            alert(err.message)
+                        }
+                    })
+            },
+            async commentPost(commentForm) {
+                console.log(commentForm)
+                await this.callPost('/comments', commentForm)
+                    .then(data => {
+                        if (data) {
+                            this.getComments(data.ticket_id)
+                        }
+                    })
+            },
+            async getStatuses() {
+                await this.callGet(`/statuses/${this.projectId}`)
+                    .then(data => {
+                        this.statusList = data.statuses
+                    })
+                    .catch(err => {
+                        if (err) {
+                            alert(err)
+                        }
+                    })
+            },
+            up() {
+                let body = new FormData();
+                body.append("file", this.upFile)
+
+                this.callPost(`/upload`, body)
+                    .then(data => {
+
+                    })
+            },
+            fetchData(ticketDetail) {
+                let ticketId = ticketDetail.ticket_id
+                this.statuses.map(status => {
+                    status.tickets.map(ticket => {
+                        if (ticket.id === ticketId) {
+                            ticket.title = ticketDetail.title
+                            ticket.avatar = ticketDetail.worker.avatar
+                            if (status.id !== ticketDetail.status.id) {
+                                status.tickets = status.tickets.filter(ticket => ticket.id !== ticketDetail.ticket_id)
+                                this.statuses.find(status => status.id === ticketDetail.status.id).tickets.push(ticket)
+                            }
+                        }
+                    })
+                })
             }
         }
     }
