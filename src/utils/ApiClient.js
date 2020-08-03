@@ -35,7 +35,7 @@ export default {
 
 function createInstance() {
     return axios.create({
-        baseURL: 'http://localhost:1313',
+        baseURL: process.env.VUE_APP_API_BASE_URL,
         responseType: "json",
         headers: {'user_token': getUserToken()}
     });
