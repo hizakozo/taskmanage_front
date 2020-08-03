@@ -1,4 +1,5 @@
-# taskmanage_front
+# タスク管理アプリケーションのFront
+※まだ実装していない機能有り
 
 ## Project setup
 ```
