@@ -56,7 +56,7 @@
 
 <script>
 import draggable from 'vuedraggable'
-import TicketDetail from '../components/TIcketDetail'
+import TicketDetail from '../components/TicketDetail'
 import TicketCreate from "../components/TicketCreate"
 import Header from "../components/Header";
 import MembersModal from "../components/MembersModal"

@@ -23,9 +23,13 @@ export default {
       this.callPost(`/projects/invite`, this.body)
           .then(data => {
             if (data) {
-
+              this.$router.push({name: 'tickets', params: {projectId: data.project_id}})
             }
-          })
+          }).catch(err => {
+            if (err) {
+              alert('送信出来ません。')
+            }
+      })
     }
   }
 }

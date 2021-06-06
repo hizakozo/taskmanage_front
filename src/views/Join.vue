@@ -1,5 +1,5 @@
 <template>
-  <b-button @click="join" class="text-center" variant="outline-success">join</b-button>
+  <b-button @click="join" class="text-center mt-5" variant="outline-success">join</b-button>
 </template>
 
 <script>

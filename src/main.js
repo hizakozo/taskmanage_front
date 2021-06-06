@@ -6,7 +6,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import apiClient from './utils/ApiClient'
 import store from './store/index'
-import VeeValidate from 'vee-validate'
+import * as VeeValidate from 'vee-validate';
 // Install BootstrapVue
 Vue.use(BootstrapVue)
 // Optionally install the BootstrapVue icon components plugin
